@@ -1,0 +1,20 @@
+import { createOrdersWorkflow } from "@medusajs/medusa/core-flows";
+import { UserDTO } from "@medusajs/framework/types";
+import { linkOrderToStoreWorkflow } from "../link-order-to-store";
+
+createOrdersWorkflow.hooks.orderCreated(async ({ order }, { container }) => {
+  try {
+    console.log("HOOK orderCreated", order);
+
+    const loggedInUser = container.resolve("loggedInUser") as UserDTO;
+
+    await linkOrderToStoreWorkflow(container).run({
+      input: {
+        orderId: order?.id,
+        userId: loggedInUser?.id,
+      },
+    });
+  } catch (error) {
+    console.log("orderCreated", error);
+  }
+});
